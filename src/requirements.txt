@@ -1,12 +1,10 @@
 altair==4.1.0
 ansicolors==1.1.8
 ansiwrap==0.8.4
-anyconfig @ file:///home/conda/feedstock_root/build_artifacts/anyconfig_1619079056336/work
 anyio==3.0.1
 appdirs==1.4.4
 appnope==0.1.0
 argon2-cffi==20.1.0
-arrow @ file:///Users/runner/miniforge3/conda-bld/arrow_1619571875722/work
 astor==0.8.1
 async-generator==1.10
 attrs==19.3.0
@@ -20,9 +18,7 @@ black-nb==0.5.0
 bleach==3.1.5
 blinker==1.4
 brotlipy==0.7.0
-cachetools @ file:///home/conda/feedstock_root/build_artifacts/cachetools_1619593780156/work
 certifi==2020.12.5
-cffi @ file:///Users/runner/miniforge3/conda-bld/cffi_1613414067184/work
 cfgv==3.2.0
 chainmap==1.0.3
 chardet==4.0.0
@@ -31,14 +27,12 @@ colorama==0.4.4
 colorclass==2.2.0
 combomethod==1.0.12
 cookiecutter==1.7.2
-cryptography @ file:///Users/runner/miniforge3/conda-bld/cryptography_1616851512278/work
 cycler==0.10.0
 decorator==4.4.2
 defusedxml==0.6.0
 deprecation==2.1.0
 detect-secrets==1.0.3
 distlib==0.3.1
-dynaconf @ file:///home/conda/feedstock_root/build_artifacts/dynaconf_1615236842834/work
 entrypoints==0.3
 fastapi==0.63.0
 fastavro==0.22.13
@@ -48,7 +42,6 @@ flake8==3.9.1
 Flask==1.1.2
 fsspec==0.8.7
 future==0.18.2
-gitdb @ file:///home/conda/feedstock_root/build_artifacts/gitdb_1616781027402/work
 gitdb2==4.0.2
 GitPython==3.0.6
 google-api-core==1.26.3
@@ -73,7 +66,6 @@ itsdangerous==1.1.0
 jedi==0.17.2
 Jinja2==2.11.2
 jinja2-time==0.2.0
-jmespath @ file:///home/conda/feedstock_root/build_artifacts/jmespath_1589369830981/work
 joblib==1.0.1
 json5==0.9.5
 jsonschema==3.2.0
@@ -87,11 +79,9 @@ jupyterlab==3.0.14
 jupyterlab-pygments==0.1.2
 jupyterlab-server==2.5.0
 jupyterlab-widgets==1.0.0
-kedro @ file:///home/conda/feedstock_root/build_artifacts/kedro_1619034225149/work
 kedro-viz==3.11.0
 kiwisolver==1.3.1
 makefile2dot==1.0.2
-MarkupSafe @ file:///Users/runner/miniforge3/conda-bld/markupsafe_1610127533370/work
 matplotlib==3.4.2
 matplotlib-inline==0.1.2
 mccabe==0.6.1
@@ -106,7 +96,6 @@ nbconvert==5.6.1
 nbformat==5.0.7
 nest-asyncio==1.5.1
 networkx==2.5.1
-nferx-sdk @ git+https://github.com/lumenbiomics/sdk@b42ad3788f58347ccb853c378eb0b435fde4cbd0
 nodeenv==1.6.0
 notebook==6.0.3
 nulltype==2.3.1
@@ -129,7 +118,6 @@ pip-chill==1.0.1
 pip-date==1.0.3
 pip-review==1.1.0
 pip-tools==5.5.0
-pluggy @ file:///Users/runner/miniforge3/conda-bld/pluggy_1610318099099/work
 poyo==0.5.0
 pre-commit==2.12.1
 prometheus-client==0.8.0
@@ -141,7 +129,6 @@ pyarrow==4.0.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycodestyle==2.7.0
-pycparser @ file:///home/conda/feedstock_root/build_artifacts/pycparser_1593275161868/work
 pydantic==1.8.1
 pydeck==0.6.2
 pyflakes==2.3.1
@@ -149,14 +136,11 @@ Pygments==2.6.1
 PyHive==0.6.4
 pymongo==3.10.1
 PyMySQL==1.0.2
-pyOpenSSL @ file:///home/conda/feedstock_root/build_artifacts/pyopenssl_1608055815057/work
 pyparsing==2.4.7
 pyrsistent==0.16.0
-PySocks @ file:///Users/runner/miniforge3/conda-bld/pysocks_1610291493748/work
 pytest==6.2.3
 python-dateutil==2.8.1
 python-json-logger==0.1.11
-python-slugify @ file:///home/conda/feedstock_root/build_artifacts/python-slugify_1619833713638/work
 pytz==2021.1
 PyYAML==5.3.1
 pyzmq==19.0.1
@@ -190,7 +174,6 @@ textdata==2.4.1
 textwrap3==0.9.2
 threadpoolctl==2.1.0
 thrift==0.13.0
-toml @ file:///home/conda/feedstock_root/build_artifacts/toml_1604308577558/work
 tomlkit==0.7.0
 toolz==0.11.1
 toposort==1.6
@@ -202,7 +185,6 @@ truffleHogRegexes==0.0.7
 typed-ast==1.4.3
 typing-extensions==3.10.0.0
 tzlocal==2.1
-Unidecode @ file:///home/conda/feedstock_root/build_artifacts/unidecode_1612533191922/work
 urllib3==1.26.4
 validators==0.18.2
 virtualenv==20.4.4
