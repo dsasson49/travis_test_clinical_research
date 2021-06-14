@@ -1,0 +1,22 @@
+# config file
+
+BASE_DIR: "/Users/christopherpoptic/clinical_research_workflow"
+# LOGS_DIR: BASE_DIR, 'logs'
+DEFAULT_LEVEL: logging.INFO
+
+NUM_MONTHS: 3
+DISEASE_NAME: "CML"
+DRUG_LIST:
+  [
+    "venlafaxine",
+    "Sertraline",
+    "Paroxetine",
+    "milnacipran",
+    "levomilnacipran",
+    "Fluvoxamine",
+    "Fluoxetine",
+    "Escitalopram",
+    "duloxetine",
+    "Desvenlafaxine",
+    "Citalopram",
+  ]

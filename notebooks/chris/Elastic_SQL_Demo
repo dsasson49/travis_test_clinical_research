@@ -1,0 +1,1925 @@
+{
+ "metadata": {
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.8"
+  },
+  "orig_nbformat": 2,
+  "kernelspec": {
+   "name": "python388jvsc74a57bd08a6c68ce4ce0c5f93d1c1b7d4853d0ec917c6c30aa2786df36c968fb4ecc0e4a",
+   "display_name": "Python 3.8.8 64-bit ('sdk': conda)"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2,
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 65,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Elastic SQL Demo\n",
+    "# https://preview.nferx.com/sdk_docs/example_notebooks/Elastic%20SQL%20Demo.html"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "'/Users/christopherpoptic/clinical_research_workflow/notebooks/chris'"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 2
+    }
+   ],
+   "source": [
+    "%pwd"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# from https://preview.nferx.com/sdk_docs/build.html\n",
+    "import os\n",
+    "import sys\n",
+    "from pprint import pprint\n",
+    "from pathlib import Path\n",
+    "import logging\n",
+    "import logging.config\n",
+    "import os\n",
+    "import yaml"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 88,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# with open(Path(BASE_DIR, 'conf/base/config.py')) as f:\n",
+    "#     yaml.load_all(f, Loader=yaml.FullLoader)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 90,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "stream",
+     "name": "stdout",
+     "text": [
+      "conf_paths are:  [PosixPath('/Users/christopherpoptic/clinical_research_workflow/conf/local'), PosixPath('/Users/christopherpoptic/clinical_research_workflow/conf/base')]\nLoading config params from parameters.yml...\n"
+     ]
+    }
+   ],
+   "source": [
+    "# import credentials\n",
+    "# https://kedro.readthedocs.io/en/stable/04_kedro_project_setup/02_configuration.html\n",
+    "from kedro.config import ConfigLoader\n",
+    "\n",
+    "# conf_paths = [\"../conf/base\", \"../conf/local\"]\n",
+    "BASE_DIR = Path(\"/Users/christopherpoptic/clinical_research_workflow\")\n",
+    "LOGS_DIR = Path(BASE_DIR, 'logs')\n",
+    "LOG_FILE = Path(LOGS_DIR, 'my_logs.log')\n",
+    "\n",
+    "conf_paths = [Path(BASE_DIR, 'conf/local'), Path(BASE_DIR, 'conf/base')]\n",
+    "print(f'conf_paths are:  {conf_paths}')\n",
+    "\n",
+    "print(f'Loading config params from parameters.yml...')\n",
+    "conf_loader = ConfigLoader(conf_paths)\n",
+    "credentials = conf_loader.get(\"credentials*\", \"credentials*/**\")\n",
+    "params = conf_loader.get('parameters*', 'parameters*/**', '**parameters*') # Get the configuration params & hyperparams \n",
+    "# parameter_value = params['parameter_name']\n",
+    "drugs = params['DRUG_LIST']\n",
+    "num_months = params['NUM_MONTHS']\n",
+    "disease_name = params['DISEASE_NAME']\n",
+    "DEFAULT_LEVEL = params['DEFAULT_LEVEL']\n",
+    "\n",
+    "# Environment setup\n",
+    "os.environ['X_NFER_BASEURL'] = 'https://preview.nferx.com'\n",
+    "os.environ['NFERENCE_USER']  = credentials['nfer_access_key'] # \"yash@nference.net\"\n",
+    "os.environ['NFERENCE_TOKEN'] = credentials['nfer_secret_key'] # \"<api_token>\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print       "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "stream",
+     "name": "stdout",
+     "text": [
+      "Config file not found, using Default logging\n"
+     ]
+    }
+   ],
+   "source": [
+    "# https://medium.com/nerd-for-tech/python-logging-simplification-e24824a748f9\n",
+    "\n",
+    "# BASE_DIR = Path(\"/Users/christopherpoptic/clinical_research_workflow\")\n",
+    "# DEFAULT_LEVEL = logging.INFO\n",
+    "LOGGING_FORMAT = '%(asctime)s %(levelname)s:%(message)s'\n",
+    "\n",
+    "def log_setup(log_cfg_path='cfg.yaml'):\n",
+    "    if os.path.exists(log_cfg_path):\n",
+    "        with open(path, 'rt') as cfg_file:\n",
+    "            try:\n",
+    "                config = yaml.safe_load(cfg_file.read())\n",
+    "                logging.config.dictConfig(config)\n",
+    "            except Exception as e:\n",
+    "                print('Error with file, using Default logging')\n",
+    "                logging.basicConfig(level=DEFAULT_LEVEL)\n",
+    "    else:\n",
+    "        logging.basicConfig(level=DEFAULT_LEVEL, filename=Path(BASE_DIR, 'crw.log'), format=LOGGING_FORMAT)\n",
+    "        print('Config file not found, using Default logging')\n",
+    "#set up logging configuration\n",
+    "log_setup()\n",
+    "\n",
+    "# Create logger\n",
+    "logger = logging.getLogger('clincial_research_workflow')\n",
+    "logger.setLevel(logging.DEBUG)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 102,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "PosixPath('/Users/christopherpoptic/clinical_research_workflow/logs/my_logs.log')"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 102
+    }
+   ],
+   "source": [
+    "LOG_FILE."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 106,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "###################\n",
+    "# SETUP LOGGER\n",
+    "###################\n",
+    "# https://towardsdatascience.com/how-to-setup-logging-for-your-python-notebooks-in-under-2-minutes-2a7ac88d723d\n",
+    "\n",
+    "import logging\n",
+    "\n",
+    "# create logger\n",
+    "logger = logging.getLogger(__name__)\n",
+    "# set log level for all handlers to debug\n",
+    "logger.setLevel(logging.DEBUG)\n",
+    "\n",
+    "# create console handler and set level to debug\n",
+    "# best for development or debugging\n",
+    "consoleHandler = logging.StreamHandler()\n",
+    "consoleHandler.setLevel(logging.DEBUG)\n",
+    "\n",
+    "# create file handler and set level to debug\n",
+    "# First make log file if it doesn't yet exist.\n",
+    "if not Path.exists(LOG_FILE):\n",
+    "    Path.mkdir(LOG_FILE)\n",
+    "# Path.mkdir(LOG_FILE, parents=True, exist_ok=True)\n",
+    "fileHandler = logging.FileHandler('logs.log')\n",
+    "# fileHandler = logging.FileHandler(LOG_FILE)\n",
+    "\n",
+    "# if not Path.exists(Path(BASE_DIR, 'logs', 'test.log')):\n",
+    "#     Path.mkdir(Path(BASE_DIR, 'logs', 'test.log'))\n",
+    "# fileHandler = logging.FileHandler(Path('logs', 'test.log'))\n",
+    "fileHandler.setLevel(logging.DEBUG)\n",
+    "\n",
+    "# create formatter\n",
+    "formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')\n",
+    "\n",
+    "# add formatter to handlers\n",
+    "consoleHandler.setFormatter(formatter)\n",
+    "fileHandler.setFormatter(formatter)\n",
+    "\n",
+    "# add handlers to logger\n",
+    "logger.addHandler(consoleHandler)\n",
+    "logger.addHandler(fileHandler)\n",
+    "\n",
+    "# set log level for development\n",
+    "logger.setLevel(logging.DEBUG)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 69,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "stream",
+     "name": "stderr",
+     "text": [
+      "2021-05-14 10:02:50,351 - __main__ - INFO - this is just a test log\n",
+      "2021-05-14 10:02:50,351 - __main__ - INFO - this is just a test log\n"
+     ]
+    }
+   ],
+   "source": [
+    "logger.info(\"this is just a test log\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "logger.info(\"this is just a test log\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "logger.error(\"this is just a test log\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Import ESAPIWrapper to access Elastic SQL functionality\n",
+    "\n",
+    "import pandas as pd\n",
+    "from nferx_sdk.data_sources import ESAPIWrapper"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "'/Users/christopherpoptic/opt/anaconda3/envs/sdk/lib/python3.8/site-packages/nferx_sdk/__init__.py'"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 9
+    }
+   ],
+   "source": [
+    "import nferx_sdk\n",
+    "nferx_sdk.__file__"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "stream",
+     "name": "stdout",
+     "text": [
+      "X_NFER_BASEURL: https://preview.nferx.com\n",
+      "DEBUG: False\n",
+      "NFERENCE_USER: cpoptic@nference.net\n",
+      "Data Type: ClinicalData\n",
+      "Default Data Version: physician_notes\n",
+      "Available Data Version  ['physician_notes_disk', 'physician_notes']\n",
+      "DataVersion changed :  physician_notes\n"
+     ]
+    }
+   ],
+   "source": [
+    "es = ESAPIWrapper()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "['physician_notes_disk', 'physician_notes']"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 11
+    }
+   ],
+   "source": [
+    "es.get_data_versions()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "stream",
+     "name": "stdout",
+     "text": [
+      "X_NFER_BASEURL: https://preview.nferx.com\n",
+      "DEBUG: False\n",
+      "NFERENCE_USER: cpoptic@nference.net\n",
+      "Data Type: ClinicalData\n",
+      "Default Data Version: physician_notes\n",
+      "Available Data Version  ['physician_notes_disk', 'physician_notes']\n",
+      "DataVersion changed :  physician_notes\n"
+     ]
+    },
+    {
+     "output_type": "display_data",
+     "data": {
+      "text/plain": "                  name  type   kind           dataversion\n0          active-logs  VIEW  ALIAS  physician_notes_disk\n1  dim_diagnosis_codes  VIEW  ALIAS  physician_notes_disk\n2           logs_write  VIEW  ALIAS  physician_notes_disk\n3          search-logs  VIEW  ALIAS  physician_notes_disk\n4    sodium_1612954633  VIEW  ALIAS  physician_notes_disk",
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>name</th>\n      <th>type</th>\n      <th>kind</th>\n      <th>dataversion</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>active-logs</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n      <td>physician_notes_disk</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>dim_diagnosis_codes</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n      <td>physician_notes_disk</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>logs_write</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n      <td>physician_notes_disk</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>search-logs</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n      <td>physician_notes_disk</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>sodium_1612954633</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n      <td>physician_notes_disk</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+     },
+     "metadata": {}
+    },
+    {
+     "output_type": "stream",
+     "name": "stdout",
+     "text": [
+      "X_NFER_BASEURL: https://preview.nferx.com\n",
+      "DEBUG: False\n",
+      "NFERENCE_USER: cpoptic@nference.net\n",
+      "Data Type: ClinicalData\n",
+      "Default Data Version: physician_notes\n",
+      "Available Data Version  ['physician_notes_disk', 'physician_notes']\n",
+      "DataVersion changed :  physician_notes\n"
+     ]
+    },
+    {
+     "output_type": "display_data",
+     "data": {
+      "text/plain": "                  name  type   kind      dataversion\n0          active-logs  VIEW  ALIAS  physician_notes\n1  dim_diagnosis_codes  VIEW  ALIAS  physician_notes\n2           logs_write  VIEW  ALIAS  physician_notes\n3          search-logs  VIEW  ALIAS  physician_notes\n4    sodium_1612954633  VIEW  ALIAS  physician_notes",
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>name</th>\n      <th>type</th>\n      <th>kind</th>\n      <th>dataversion</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>active-logs</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n      <td>physician_notes</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>dim_diagnosis_codes</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n      <td>physician_notes</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>logs_write</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n      <td>physician_notes</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>search-logs</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n      <td>physician_notes</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>sodium_1612954633</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n      <td>physician_notes</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+     },
+     "metadata": {}
+    }
+   ],
+   "source": [
+    "for each in es.get_data_versions():\n",
+    "    es = ESAPIWrapper(each)\n",
+    "    query = \"SHOW TABLES\"\n",
+    "    df = es.execute_sql(query)\n",
+    "    df[\"dataversion\"] = each\n",
+    "    display(df.head())"
+   ]
+  },
+  {
+   "source": [
+    "### Check the avaiable data versions, and pass it as param. If not default dataversion will be selected \n",
+    "#### On intilaising ES wrapper it prints default data version, available data version and the data version passed as argument"
+   ],
+   "cell_type": "markdown",
+   "metadata": {}
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "stream",
+     "name": "stdout",
+     "text": [
+      "X_NFER_BASEURL: https://preview.nferx.com\n",
+      "DEBUG: False\n",
+      "NFERENCE_USER: cpoptic@nference.net\n",
+      "Data Type: ClinicalData\n",
+      "Default Data Version: physician_notes\n",
+      "Available Data Version  ['physician_notes_disk', 'physician_notes']\n",
+      "DataVersion changed :  physician_notes\n"
+     ]
+    }
+   ],
+   "source": [
+    "es = ESAPIWrapper(data_version=\"physician_notes\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "                                  name  type   kind\n",
+       "0                          active-logs  VIEW  ALIAS\n",
+       "1                  dim_diagnosis_codes  VIEW  ALIAS\n",
+       "2                           logs_write  VIEW  ALIAS\n",
+       "3                          search-logs  VIEW  ALIAS\n",
+       "4                    sodium_1612954633  VIEW  ALIAS\n",
+       "5                synthetic_dim_patient  VIEW  ALIAS\n",
+       "6             synthetic_fact_diagnosis  VIEW  ALIAS\n",
+       "7            synthetic_fact_flowsheets  VIEW  ALIAS\n",
+       "8              synthetic_fact_lab_test  VIEW  ALIAS\n",
+       "9                synthetic_fact_orders  VIEW  ALIAS\n",
+       "10        synthetic_fact_patient_notes  VIEW  ALIAS\n",
+       "11  upload_cdap_fact_flowsheets_sumit2  VIEW  ALIAS\n",
+       "12        upload_nferx_fact_flowsheets  VIEW  ALIAS"
+      ],
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>name</th>\n      <th>type</th>\n      <th>kind</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>active-logs</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>dim_diagnosis_codes</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>logs_write</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>search-logs</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>sodium_1612954633</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>synthetic_dim_patient</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>6</th>\n      <td>synthetic_fact_diagnosis</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>7</th>\n      <td>synthetic_fact_flowsheets</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>8</th>\n      <td>synthetic_fact_lab_test</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>9</th>\n      <td>synthetic_fact_orders</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>10</th>\n      <td>synthetic_fact_patient_notes</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>11</th>\n      <td>upload_cdap_fact_flowsheets_sumit2</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>12</th>\n      <td>upload_nferx_fact_flowsheets</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+     },
+     "metadata": {},
+     "execution_count": 14
+    }
+   ],
+   "source": [
+    "query = \"SHOW TABLES\"\n",
+    "df = es.execute_sql(query)\n",
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "                                 name  type   kind\n",
+       "0            synthetic_fact_diagnosis  VIEW  ALIAS\n",
+       "1           synthetic_fact_flowsheets  VIEW  ALIAS\n",
+       "2             synthetic_fact_lab_test  VIEW  ALIAS\n",
+       "3               synthetic_fact_orders  VIEW  ALIAS\n",
+       "4        synthetic_fact_patient_notes  VIEW  ALIAS\n",
+       "5  upload_cdap_fact_flowsheets_sumit2  VIEW  ALIAS\n",
+       "6        upload_nferx_fact_flowsheets  VIEW  ALIAS"
+      ],
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>name</th>\n      <th>type</th>\n      <th>kind</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>synthetic_fact_diagnosis</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>synthetic_fact_flowsheets</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>synthetic_fact_lab_test</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>synthetic_fact_orders</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>synthetic_fact_patient_notes</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>upload_cdap_fact_flowsheets_sumit2</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n    <tr>\n      <th>6</th>\n      <td>upload_nferx_fact_flowsheets</td>\n      <td>VIEW</td>\n      <td>ALIAS</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+     },
+     "metadata": {},
+     "execution_count": 15
+    }
+   ],
+   "source": [
+    "query = \"SHOW TABLES like '%fact%'\"\n",
+    "df = es.execute_sql(query)\n",
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "                               column       type   mapping\n",
+       "0               APPROVING_PROVIDER_DK    VARCHAR      text\n",
+       "1                ASSIGNED_PROVIDER_DK    VARCHAR      text\n",
+       "2                       DOC_TIMESTAMP  TIMESTAMP  datetime\n",
+       "3                           DRUG_NAME    VARCHAR      text\n",
+       "4                    ENCOUNTER_NUMBER    VARCHAR      text\n",
+       "5                  LOCATION_SITE_NAME    VARCHAR      text\n",
+       "6             MEDICATION_GENERIC_NAME    VARCHAR      text\n",
+       "7                         MED_GENERIC    VARCHAR      text\n",
+       "8                ORDERING_PROVIDER_DK    VARCHAR      text\n",
+       "9                        ORDERS_COUNT    VARCHAR      text\n",
+       "10            ORDER_ALIAS_DESCRIPTION    VARCHAR      text\n",
+       "11                  ORDER_APPROVE_DTM  TIMESTAMP  datetime\n",
+       "12                         ORDER_CODE    VARCHAR      text\n",
+       "13                  ORDER_DESCRIPTION    VARCHAR      text\n",
+       "14            ORDER_DESCRIPTION_UPPER    VARCHAR      text\n",
+       "15              ORDER_DISPENSE_AMOUNT     DOUBLE    double\n",
+       "16           ORDER_DISPENSE_MODE_CODE    VARCHAR      text\n",
+       "17    ORDER_DISPENSE_MODE_DESCRIPTION    VARCHAR      text\n",
+       "18                  ORDER_DOSE_AMOUNT     DOUBLE    double\n",
+       "19  ORDER_DOSE_FORM_ROUTE_DESCRIPTION    VARCHAR      text\n",
+       "20                   ORDER_DOSE_UNITS    VARCHAR      text\n",
+       "21                          ORDER_DTM  TIMESTAMP  datetime\n",
+       "22              ORDER_DURATION_AMOUNT     DOUBLE    double\n",
+       "23                ORDER_EFFECTIVE_DTM  TIMESTAMP  datetime\n",
+       "24               ORDER_EXPIRATION_DTM  TIMESTAMP  datetime\n",
+       "25             ORDER_FORM_DESCRIPTION    VARCHAR      text\n",
+       "26                    ORDER_FREQUENCY    VARCHAR      text\n",
+       "27                           ORDER_ID    VARCHAR      text\n",
+       "28                 ORDER_INSTRUCTIONS    VARCHAR      text\n",
+       "29                      ORDER_ITEM_DK    VARCHAR      text\n",
+       "30                     ORDER_PRIORITY    VARCHAR      text\n",
+       "31                     ORDER_QUANTITY     DOUBLE    double\n",
+       "32              ORDER_REFILLS_ALLOWED    INTEGER   integer\n",
+       "33                   ORDER_ROUTE_CODE    VARCHAR      text\n",
+       "34            ORDER_ROUTE_DESCRIPTION    VARCHAR      text\n",
+       "35                    ORDER_START_DTM  TIMESTAMP  datetime\n",
+       "36                       ORDER_STATUS    VARCHAR      text\n",
+       "37                     ORDER_STOP_DTM  TIMESTAMP  datetime\n",
+       "38                     ORDER_STRENGTH    VARCHAR      text\n",
+       "39               ORDER_STRENGTH_UNITS    VARCHAR      text\n",
+       "40                 ORDER_SUBTYPE_CODE    VARCHAR      text\n",
+       "41                   ORDER_SUB_STATUS    VARCHAR      text\n",
+       "42                         ORDER_TYPE    VARCHAR      text\n",
+       "43                    ORDER_TYPE_CODE    VARCHAR      text\n",
+       "44             ORDER_TYPE_DESCRIPTION    VARCHAR      text\n",
+       "45                       ORDER_VOLUME     DOUBLE    double\n",
+       "46                    ORIG_TABLE_NAME    VARCHAR      text\n",
+       "47               PATIENT_AGE_AT_EVENT    INTEGER   integer\n",
+       "48                         PATIENT_DK    VARCHAR      text\n",
+       "49                  PATIENT_DOB_EPOCH  TIMESTAMP  datetime\n",
+       "50          PATIENT_GEO_CODE_AT_EVENT    VARCHAR      text\n",
+       "51                           PRN_FLAG    VARCHAR      text\n",
+       "52                  SOURCE_SYSTEM_KEY    VARCHAR      text"
+      ],
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>column</th>\n      <th>type</th>\n      <th>mapping</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>APPROVING_PROVIDER_DK</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>ASSIGNED_PROVIDER_DK</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>DOC_TIMESTAMP</td>\n      <td>TIMESTAMP</td>\n      <td>datetime</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>DRUG_NAME</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>ENCOUNTER_NUMBER</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>LOCATION_SITE_NAME</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>6</th>\n      <td>MEDICATION_GENERIC_NAME</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>7</th>\n      <td>MED_GENERIC</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>8</th>\n      <td>ORDERING_PROVIDER_DK</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>9</th>\n      <td>ORDERS_COUNT</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>10</th>\n      <td>ORDER_ALIAS_DESCRIPTION</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>11</th>\n      <td>ORDER_APPROVE_DTM</td>\n      <td>TIMESTAMP</td>\n      <td>datetime</td>\n    </tr>\n    <tr>\n      <th>12</th>\n      <td>ORDER_CODE</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>13</th>\n      <td>ORDER_DESCRIPTION</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>14</th>\n      <td>ORDER_DESCRIPTION_UPPER</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>15</th>\n      <td>ORDER_DISPENSE_AMOUNT</td>\n      <td>DOUBLE</td>\n      <td>double</td>\n    </tr>\n    <tr>\n      <th>16</th>\n      <td>ORDER_DISPENSE_MODE_CODE</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>17</th>\n      <td>ORDER_DISPENSE_MODE_DESCRIPTION</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>18</th>\n      <td>ORDER_DOSE_AMOUNT</td>\n      <td>DOUBLE</td>\n      <td>double</td>\n    </tr>\n    <tr>\n      <th>19</th>\n      <td>ORDER_DOSE_FORM_ROUTE_DESCRIPTION</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>20</th>\n      <td>ORDER_DOSE_UNITS</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>21</th>\n      <td>ORDER_DTM</td>\n      <td>TIMESTAMP</td>\n      <td>datetime</td>\n    </tr>\n    <tr>\n      <th>22</th>\n      <td>ORDER_DURATION_AMOUNT</td>\n      <td>DOUBLE</td>\n      <td>double</td>\n    </tr>\n    <tr>\n      <th>23</th>\n      <td>ORDER_EFFECTIVE_DTM</td>\n      <td>TIMESTAMP</td>\n      <td>datetime</td>\n    </tr>\n    <tr>\n      <th>24</th>\n      <td>ORDER_EXPIRATION_DTM</td>\n      <td>TIMESTAMP</td>\n      <td>datetime</td>\n    </tr>\n    <tr>\n      <th>25</th>\n      <td>ORDER_FORM_DESCRIPTION</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>26</th>\n      <td>ORDER_FREQUENCY</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>27</th>\n      <td>ORDER_ID</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>28</th>\n      <td>ORDER_INSTRUCTIONS</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>29</th>\n      <td>ORDER_ITEM_DK</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>30</th>\n      <td>ORDER_PRIORITY</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>31</th>\n      <td>ORDER_QUANTITY</td>\n      <td>DOUBLE</td>\n      <td>double</td>\n    </tr>\n    <tr>\n      <th>32</th>\n      <td>ORDER_REFILLS_ALLOWED</td>\n      <td>INTEGER</td>\n      <td>integer</td>\n    </tr>\n    <tr>\n      <th>33</th>\n      <td>ORDER_ROUTE_CODE</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>34</th>\n      <td>ORDER_ROUTE_DESCRIPTION</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>35</th>\n      <td>ORDER_START_DTM</td>\n      <td>TIMESTAMP</td>\n      <td>datetime</td>\n    </tr>\n    <tr>\n      <th>36</th>\n      <td>ORDER_STATUS</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>37</th>\n      <td>ORDER_STOP_DTM</td>\n      <td>TIMESTAMP</td>\n      <td>datetime</td>\n    </tr>\n    <tr>\n      <th>38</th>\n      <td>ORDER_STRENGTH</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>39</th>\n      <td>ORDER_STRENGTH_UNITS</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>40</th>\n      <td>ORDER_SUBTYPE_CODE</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>41</th>\n      <td>ORDER_SUB_STATUS</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>42</th>\n      <td>ORDER_TYPE</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>43</th>\n      <td>ORDER_TYPE_CODE</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>44</th>\n      <td>ORDER_TYPE_DESCRIPTION</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>45</th>\n      <td>ORDER_VOLUME</td>\n      <td>DOUBLE</td>\n      <td>double</td>\n    </tr>\n    <tr>\n      <th>46</th>\n      <td>ORIG_TABLE_NAME</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>47</th>\n      <td>PATIENT_AGE_AT_EVENT</td>\n      <td>INTEGER</td>\n      <td>integer</td>\n    </tr>\n    <tr>\n      <th>48</th>\n      <td>PATIENT_DK</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>49</th>\n      <td>PATIENT_DOB_EPOCH</td>\n      <td>TIMESTAMP</td>\n      <td>datetime</td>\n    </tr>\n    <tr>\n      <th>50</th>\n      <td>PATIENT_GEO_CODE_AT_EVENT</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>51</th>\n      <td>PRN_FLAG</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n    <tr>\n      <th>52</th>\n      <td>SOURCE_SYSTEM_KEY</td>\n      <td>VARCHAR</td>\n      <td>text</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+     },
+     "metadata": {},
+     "execution_count": 16
+    }
+   ],
+   "source": [
+    "query = \"DESCRIBE synthetic_fact_orders\"\n",
+    "df = es.execute_sql(query)\n",
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "stream",
+     "name": "stdout",
+     "text": [
+      "......CPU times: user 567 ms, sys: 66.2 ms, total: 633 ms\n",
+      "Wall time: 9.8 s\n"
+     ]
+    },
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "      APPROVING_PROVIDER_DK ASSIGNED_PROVIDER_DK             DOC_TIMESTAMP  \\\n",
+       "0                      None                 None  2015-10-14T17:45:55.000Z   \n",
+       "1                      None                 None  2015-10-14T17:45:57.000Z   \n",
+       "2                      None                 None  2015-10-14T08:45:02.000Z   \n",
+       "3                      None                 None  2015-10-15T11:04:29.000Z   \n",
+       "4                      None                 None  2015-10-15T16:22:12.000Z   \n",
+       "...                     ...                  ...                       ...   \n",
+       "28379                  None                 None  2016-02-09T01:17:23.000Z   \n",
+       "28380                  None                 None  2016-02-09T07:12:07.000Z   \n",
+       "28381                  None                 None  2016-02-08T20:54:46.000Z   \n",
+       "28382                  None                 None  2016-02-09T18:15:02.000Z   \n",
+       "28383                  None                 None  2018-06-29T14:55:36.000Z   \n",
+       "\n",
+       "          DRUG_NAME ENCOUNTER_NUMBER LOCATION_SITE_NAME  \\\n",
+       "0              None             None               None   \n",
+       "1              None             None               None   \n",
+       "2              None             None               None   \n",
+       "3              None             None               None   \n",
+       "4      pantoprazole             None               None   \n",
+       "...             ...              ...                ...   \n",
+       "28379          None             None               None   \n",
+       "28380          None             None               None   \n",
+       "28381          None             None               None   \n",
+       "28382          None             None               None   \n",
+       "28383          None             None               None   \n",
+       "\n",
+       "      MEDICATION_GENERIC_NAME                 MED_GENERIC  \\\n",
+       "0                                                           \n",
+       "1                                               LIDOCAINE   \n",
+       "2                                         DIPHENHYDRAMINE   \n",
+       "3                                                           \n",
+       "4                pantoprazole                PANTOPRAZOLE   \n",
+       "...                       ...                         ...   \n",
+       "28379                                       Call Provider   \n",
+       "28380                          Bedside Glucose Monitoring   \n",
+       "28381                                  potassium chloride   \n",
+       "28382                                  potassium chloride   \n",
+       "28383                                Protein Random Urine   \n",
+       "\n",
+       "      ORDERING_PROVIDER_DK ORDERS_COUNT  ... ORDER_TYPE_CODE  \\\n",
+       "0                     None         None  ...          NURSNG   \n",
+       "1                     None         None  ...             MED   \n",
+       "2                     None         None  ...             MED   \n",
+       "3                     None         None  ...           TRMED   \n",
+       "4                     None         None  ...             MED   \n",
+       "...                    ...          ...  ...             ...   \n",
+       "28379                 None         None  ...            3859   \n",
+       "28380                 None         None  ...            3859   \n",
+       "28381                 None         None  ...            2776   \n",
+       "28382                 None         None  ...            2776   \n",
+       "28383                 None         None  ...            3856   \n",
+       "\n",
+       "      ORDER_TYPE_DESCRIPTION ORDER_VOLUME ORIG_TABLE_NAME  \\\n",
+       "0                       None         None     FACT_ORDERS   \n",
+       "1                       None         None     FACT_ORDERS   \n",
+       "2                       None         None     FACT_ORDERS   \n",
+       "3                       None         None     FACT_ORDERS   \n",
+       "4                       None         None     FACT_ORDERS   \n",
+       "...                      ...          ...             ...   \n",
+       "28379                   None         None     FACT_ORDERS   \n",
+       "28380                   None         None     FACT_ORDERS   \n",
+       "28381                   None         None     FACT_ORDERS   \n",
+       "28382                   None         None     FACT_ORDERS   \n",
+       "28383                   None         None     FACT_ORDERS   \n",
+       "\n",
+       "      PATIENT_AGE_AT_EVENT PATIENT_DK         PATIENT_DOB_EPOCH  \\\n",
+       "0                     None     526446  1974-06-15T00:00:00.000Z   \n",
+       "1                     None     526446  1974-06-15T00:00:00.000Z   \n",
+       "2                     None     526446  1974-06-15T00:00:00.000Z   \n",
+       "3                     None     526446  1974-06-15T00:00:00.000Z   \n",
+       "4                     None     526446  1974-06-15T00:00:00.000Z   \n",
+       "...                    ...        ...                       ...   \n",
+       "28379                 None     232254  1960-08-15T00:00:00.000Z   \n",
+       "28380                 None     232254  1960-08-15T00:00:00.000Z   \n",
+       "28381                 None     232254  1960-08-15T00:00:00.000Z   \n",
+       "28382                 None     232254  1960-08-15T00:00:00.000Z   \n",
+       "28383                 None     232254  1960-08-15T00:00:00.000Z   \n",
+       "\n",
+       "      PATIENT_GEO_CODE_AT_EVENT  PRN_FLAG SOURCE_SYSTEM_KEY  \n",
+       "0                          None      None              None  \n",
+       "1                          None      None              None  \n",
+       "2                          None      None              None  \n",
+       "3                          None      None              None  \n",
+       "4                          None      None              None  \n",
+       "...                         ...       ...               ...  \n",
+       "28379                      None      None              None  \n",
+       "28380                      None      None              None  \n",
+       "28381                      None      None              None  \n",
+       "28382                      None      None              None  \n",
+       "28383                      None      None              None  \n",
+       "\n",
+       "[28384 rows x 53 columns]"
+      ],
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>APPROVING_PROVIDER_DK</th>\n      <th>ASSIGNED_PROVIDER_DK</th>\n      <th>DOC_TIMESTAMP</th>\n      <th>DRUG_NAME</th>\n      <th>ENCOUNTER_NUMBER</th>\n      <th>LOCATION_SITE_NAME</th>\n      <th>MEDICATION_GENERIC_NAME</th>\n      <th>MED_GENERIC</th>\n      <th>ORDERING_PROVIDER_DK</th>\n      <th>ORDERS_COUNT</th>\n      <th>...</th>\n      <th>ORDER_TYPE_CODE</th>\n      <th>ORDER_TYPE_DESCRIPTION</th>\n      <th>ORDER_VOLUME</th>\n      <th>ORIG_TABLE_NAME</th>\n      <th>PATIENT_AGE_AT_EVENT</th>\n      <th>PATIENT_DK</th>\n      <th>PATIENT_DOB_EPOCH</th>\n      <th>PATIENT_GEO_CODE_AT_EVENT</th>\n      <th>PRN_FLAG</th>\n      <th>SOURCE_SYSTEM_KEY</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>None</td>\n      <td>None</td>\n      <td>2015-10-14T17:45:55.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n      <td></td>\n      <td></td>\n      <td>None</td>\n      <td>None</td>\n      <td>...</td>\n      <td>NURSNG</td>\n      <td>None</td>\n      <td>None</td>\n      <td>FACT_ORDERS</td>\n      <td>None</td>\n      <td>526446</td>\n      <td>1974-06-15T00:00:00.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>None</td>\n      <td>None</td>\n      <td>2015-10-14T17:45:57.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n      <td></td>\n      <td>LIDOCAINE</td>\n      <td>None</td>\n      <td>None</td>\n      <td>...</td>\n      <td>MED</td>\n      <td>None</td>\n      <td>None</td>\n      <td>FACT_ORDERS</td>\n      <td>None</td>\n      <td>526446</td>\n      <td>1974-06-15T00:00:00.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>None</td>\n      <td>None</td>\n      <td>2015-10-14T08:45:02.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n      <td></td>\n      <td>DIPHENHYDRAMINE</td>\n      <td>None</td>\n      <td>None</td>\n      <td>...</td>\n      <td>MED</td>\n      <td>None</td>\n      <td>None</td>\n      <td>FACT_ORDERS</td>\n      <td>None</td>\n      <td>526446</td>\n      <td>1974-06-15T00:00:00.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>None</td>\n      <td>None</td>\n      <td>2015-10-15T11:04:29.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n      <td></td>\n      <td></td>\n      <td>None</td>\n      <td>None</td>\n      <td>...</td>\n      <td>TRMED</td>\n      <td>None</td>\n      <td>None</td>\n      <td>FACT_ORDERS</td>\n      <td>None</td>\n      <td>526446</td>\n      <td>1974-06-15T00:00:00.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>None</td>\n      <td>None</td>\n      <td>2015-10-15T16:22:12.000Z</td>\n      <td>pantoprazole</td>\n      <td>None</td>\n      <td>None</td>\n      <td>pantoprazole</td>\n      <td>PANTOPRAZOLE</td>\n      <td>None</td>\n      <td>None</td>\n      <td>...</td>\n      <td>MED</td>\n      <td>None</td>\n      <td>None</td>\n      <td>FACT_ORDERS</td>\n      <td>None</td>\n      <td>526446</td>\n      <td>1974-06-15T00:00:00.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n    </tr>\n    <tr>\n      <th>...</th>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n    </tr>\n    <tr>\n      <th>28379</th>\n      <td>None</td>\n      <td>None</td>\n      <td>2016-02-09T01:17:23.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n      <td></td>\n      <td>Call Provider</td>\n      <td>None</td>\n      <td>None</td>\n      <td>...</td>\n      <td>3859</td>\n      <td>None</td>\n      <td>None</td>\n      <td>FACT_ORDERS</td>\n      <td>None</td>\n      <td>232254</td>\n      <td>1960-08-15T00:00:00.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n    </tr>\n    <tr>\n      <th>28380</th>\n      <td>None</td>\n      <td>None</td>\n      <td>2016-02-09T07:12:07.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n      <td></td>\n      <td>Bedside Glucose Monitoring</td>\n      <td>None</td>\n      <td>None</td>\n      <td>...</td>\n      <td>3859</td>\n      <td>None</td>\n      <td>None</td>\n      <td>FACT_ORDERS</td>\n      <td>None</td>\n      <td>232254</td>\n      <td>1960-08-15T00:00:00.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n    </tr>\n    <tr>\n      <th>28381</th>\n      <td>None</td>\n      <td>None</td>\n      <td>2016-02-08T20:54:46.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n      <td></td>\n      <td>potassium chloride</td>\n      <td>None</td>\n      <td>None</td>\n      <td>...</td>\n      <td>2776</td>\n      <td>None</td>\n      <td>None</td>\n      <td>FACT_ORDERS</td>\n      <td>None</td>\n      <td>232254</td>\n      <td>1960-08-15T00:00:00.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n    </tr>\n    <tr>\n      <th>28382</th>\n      <td>None</td>\n      <td>None</td>\n      <td>2016-02-09T18:15:02.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n      <td></td>\n      <td>potassium chloride</td>\n      <td>None</td>\n      <td>None</td>\n      <td>...</td>\n      <td>2776</td>\n      <td>None</td>\n      <td>None</td>\n      <td>FACT_ORDERS</td>\n      <td>None</td>\n      <td>232254</td>\n      <td>1960-08-15T00:00:00.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n    </tr>\n    <tr>\n      <th>28383</th>\n      <td>None</td>\n      <td>None</td>\n      <td>2018-06-29T14:55:36.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n      <td></td>\n      <td>Protein Random Urine</td>\n      <td>None</td>\n      <td>None</td>\n      <td>...</td>\n      <td>3856</td>\n      <td>None</td>\n      <td>None</td>\n      <td>FACT_ORDERS</td>\n      <td>None</td>\n      <td>232254</td>\n      <td>1960-08-15T00:00:00.000Z</td>\n      <td>None</td>\n      <td>None</td>\n      <td>None</td>\n    </tr>\n  </tbody>\n</table>\n<p>28384 rows × 53 columns</p>\n</div>"
+     },
+     "metadata": {},
+     "execution_count": 19
+    }
+   ],
+   "source": [
+    "%%time\n",
+    "query = \"SELECT * FROM synthetic_fact_orders WHERE PATIENT_DK IN ('526446', '232254')\"\n",
+    "df = es.execute_sql(query)\n",
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "source": [
+    "# Making Cohort\n",
+    "### Case Study: What are the most significant (a) lab tests (b) diagnostic codes (c) diseases (d) comorbidity classes (e) drug classes for patients who were diagnosed with Major Depressive Disorder who were ever administered with drug venlafaxine, Sertraline, Paroxetine, milnacipran, levomilnacipran, Fluvoxamine, Fluoxetine, Escitalopram, duloxetine, Desvenlafaxine, Citalopram"
+   ],
+   "cell_type": "markdown",
+   "metadata": {}
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from nferx_sdk.data_sources import RecordsAPIWrapper\n",
+    "from nferx_sdk.utils.query import *"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "stream",
+     "name": "stdout",
+     "text": [
+      "X_NFER_BASEURL: https://preview.nferx.com\n",
+      "DEBUG: False\n",
+      "NFERENCE_USER: cpoptic@nference.net\n",
+      "Data Type: ClinicalData\n",
+      "Default Data Version: physician_notes\n",
+      "Available Data Version  ['physician_notes_disk', 'physician_notes']\n"
+     ]
+    }
+   ],
+   "source": [
+    "rec = RecordsAPIWrapper()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "drugs = [ 'venlafaxine', 'Sertraline', 'Paroxetine', 'milnacipran', 'levomilnacipran', 'Fluvoxamine', 'Fluoxetine', 'Escitalopram', 'duloxetine', 'Desvenlafaxine', 'Citalopram']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "medication_df = rec.medication(tokens=drugs)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "                    Column Name  No of Patients  No of Rows\n",
+       "1                   order_drugs           98569      654344\n",
+       "2                   med_generic           96350      882123\n",
+       "3             order_description           95345      631543\n",
+       "4       medication_generic_name           57026      179764\n",
+       "5                    meds_drugs           24942      245228\n",
+       "6  med_generic_name_description           24942      245227\n",
+       "7          med_name_description           18182      165536"
+      ],
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Column Name</th>\n      <th>No of Patients</th>\n      <th>No of Rows</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>1</th>\n      <td>order_drugs</td>\n      <td>98569</td>\n      <td>654344</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>med_generic</td>\n      <td>96350</td>\n      <td>882123</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>order_description</td>\n      <td>95345</td>\n      <td>631543</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>medication_generic_name</td>\n      <td>57026</td>\n      <td>179764</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>meds_drugs</td>\n      <td>24942</td>\n      <td>245228</td>\n    </tr>\n    <tr>\n      <th>6</th>\n      <td>med_generic_name_description</td>\n      <td>24942</td>\n      <td>245227</td>\n    </tr>\n    <tr>\n      <th>7</th>\n      <td>med_name_description</td>\n      <td>18182</td>\n      <td>165536</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+     },
+     "metadata": {},
+     "execution_count": 25
+    }
+   ],
+   "source": [
+    "medication_df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mdd_codes = rec.getDiagnosticCodesFromDisease('Major Depressive Disorder')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 45,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "['296.20',\n",
+       " '296.2',\n",
+       " '296.3',\n",
+       " '296.30',\n",
+       " 'F32.9',\n",
+       " 'F33.1',\n",
+       " 'F33.9',\n",
+       " 'F33.0',\n",
+       " 'F32.1',\n",
+       " 'F33.42',\n",
+       " 'F33.41',\n",
+       " 'F33.2',\n",
+       " 'F32.0',\n",
+       " 'F32.5',\n",
+       " 'F32.2',\n",
+       " 'F32.4',\n",
+       " 'F33.40',\n",
+       " 'F33.3',\n",
+       " 'F32.3',\n",
+       " 'F32',\n",
+       " 'F33.4',\n",
+       " 'F33',\n",
+       " '1208903011',\n",
+       " '31734016',\n",
+       " '67318015',\n",
+       " '110183011',\n",
+       " '2967289019',\n",
+       " '55297012',\n",
+       " '3304524018',\n",
+       " '77113019',\n",
+       " '401766011',\n",
+       " '60885016',\n",
+       " '294826016',\n",
+       " '61592011',\n",
+       " '294831019',\n",
+       " '112983018',\n",
+       " '294825017',\n",
+       " '43436011',\n",
+       " '441826016',\n",
+       " '575312011',\n",
+       " '25793014',\n",
+       " '764437010',\n",
+       " '71628011',\n",
+       " '3447110019',\n",
+       " '809332011',\n",
+       " '759158012',\n",
+       " '3005871013',\n",
+       " '3005851016',\n",
+       " '811444017',\n",
+       " '3320813013',\n",
+       " '575318010',\n",
+       " '294832014',\n",
+       " '575315013',\n",
+       " '3304523012',\n",
+       " '3320811010',\n",
+       " '3646265011',\n",
+       " '3646267015',\n",
+       " '743291014',\n",
+       " '783572012',\n",
+       " '3005831015',\n",
+       " '105998019',\n",
+       " '764501019',\n",
+       " '1064901000119115',\n",
+       " '47670016',\n",
+       " '3646264010',\n",
+       " '3447117016',\n",
+       " '767531018',\n",
+       " '768230018',\n",
+       " '575317017',\n",
+       " '110184017',\n",
+       " '575314012',\n",
+       " '575319019',\n",
+       " '3447116013',\n",
+       " '294824018',\n",
+       " '3447115012',\n",
+       " '3646260018',\n",
+       " '575311016',\n",
+       " '3005549010',\n",
+       " '3005548019',\n",
+       " '2770929013',\n",
+       " '55208011',\n",
+       " '115270017',\n",
+       " '3005878019',\n",
+       " '3646266012',\n",
+       " '779879010',\n",
+       " '709320011',\n",
+       " '756295019',\n",
+       " '294830018',\n",
+       " '294828015',\n",
+       " '803098012',\n",
+       " '807808018',\n",
+       " '2181000119116',\n",
+       " '1195435015',\n",
+       " '3447118014',\n",
+       " '3646259011',\n",
+       " '741948019',\n",
+       " '575313018',\n",
+       " '59216014',\n",
+       " '661382010',\n",
+       " '3447111015',\n",
+       " '3320812015',\n",
+       " '59219019',\n",
+       " '294827013',\n",
+       " '3647170015',\n",
+       " '775005010',\n",
+       " '64391018',\n",
+       " '462884010',\n",
+       " '110185016',\n",
+       " '715367012',\n",
+       " '3647431019',\n",
+       " '776333011',\n",
+       " '3647169016',\n",
+       " '575323010',\n",
+       " '118497013',\n",
+       " '110186015',\n",
+       " '575322017',\n",
+       " '575330016',\n",
+       " '811491012',\n",
+       " '575321012',\n",
+       " '3647432014',\n",
+       " '67125015',\n",
+       " '661383017',\n",
+       " '740122015',\n",
+       " '756582011',\n",
+       " '5460017',\n",
+       " '24135018',\n",
+       " '696414010',\n",
+       " '346972018',\n",
+       " '410861011',\n",
+       " '619439012',\n",
+       " '667762016',\n",
+       " '03082111']"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 45
+    }
+   ],
+   "source": [
+    "mdd_codes   "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "stream",
+     "name": "stdout",
+     "text": [
+      "CPU times: user 39.3 ms, sys: 17.2 ms, total: 56.5 ms\nWall time: 1.64 s\n"
+     ]
+    },
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "      Patient ID\n",
+       "0          10001\n",
+       "1         100012\n",
+       "2         100018\n",
+       "3         100025\n",
+       "4         100029\n",
+       "...          ...\n",
+       "50405      99972\n",
+       "50406      99976\n",
+       "50407      99980\n",
+       "50408      99987\n",
+       "50409      99988\n",
+       "\n",
+       "[50410 rows x 1 columns]"
+      ],
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Patient ID</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>10001</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>100012</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>100018</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>100025</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>100029</td>\n    </tr>\n    <tr>\n      <th>...</th>\n      <td>...</td>\n    </tr>\n    <tr>\n      <th>50405</th>\n      <td>99972</td>\n    </tr>\n    <tr>\n      <th>50406</th>\n      <td>99976</td>\n    </tr>\n    <tr>\n      <th>50407</th>\n      <td>99980</td>\n    </tr>\n    <tr>\n      <th>50408</th>\n      <td>99987</td>\n    </tr>\n    <tr>\n      <th>50409</th>\n      <td>99988</td>\n    </tr>\n  </tbody>\n</table>\n<p>50410 rows × 1 columns</p>\n</div>"
+     },
+     "metadata": {},
+     "execution_count": 48
+    }
+   ],
+   "source": [
+    "%%time\n",
+    "mdd_df = rec.getPatientList('Major Depressive Disorder')\n",
+    "mdd_df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 50,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "50410"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 50
+    }
+   ],
+   "source": [
+    "mdd_df[\"Patient ID\"].nunique()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 53,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "stream",
+     "name": "stdout",
+     "text": [
+      "Creating cohort of all patients as cohortSpecifier is empty or not supplied\n"
+     ]
+    },
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "<nferx_sdk.data_sources.hybridcohort_sdk.Cohort at 0x7fb3b12786d0>"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 53
+    }
+   ],
+   "source": [
+    "rec.makeCohort(\"Major Depressive Disorder\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "meds_query  = inQuery( ['medication_generic_name', 'order_description', 'med_generic', 'order_drugs', 'meds_drugs', 'med_generic', 'med_name_description', 'med_generic_name_description'], drugs)\n",
+    "codes_query = inQuery('diagnosis_code', mdd_codes)\n",
+    "query       = andQuery(meds_query, codes_query)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 54,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "'medication_generic_name:venlafaxine,medication_generic_name:Sertraline,medication_generic_name:Paroxetine,medication_generic_name:milnacipran,medication_generic_name:levomilnacipran,medication_generic_name:Fluvoxamine,medication_generic_name:Fluoxetine,medication_generic_name:Escitalopram,medication_generic_name:duloxetine,medication_generic_name:Desvenlafaxine,medication_generic_name:Citalopram,order_description:venlafaxine,order_description:Sertraline,order_description:Paroxetine,order_description:milnacipran,order_description:levomilnacipran,order_description:Fluvoxamine,order_description:Fluoxetine,order_description:Escitalopram,order_description:duloxetine,order_description:Desvenlafaxine,order_description:Citalopram,med_generic:venlafaxine,med_generic:Sertraline,med_generic:Paroxetine,med_generic:milnacipran,med_generic:levomilnacipran,med_generic:Fluvoxamine,med_generic:Fluoxetine,med_generic:Escitalopram,med_generic:duloxetine,med_generic:Desvenlafaxine,med_generic:Citalopram,order_drugs:venlafaxine,order_drugs:Sertraline,order_drugs:Paroxetine,order_drugs:milnacipran,order_drugs:levomilnacipran,order_drugs:Fluvoxamine,order_drugs:Fluoxetine,order_drugs:Escitalopram,order_drugs:duloxetine,order_drugs:Desvenlafaxine,order_drugs:Citalopram,meds_drugs:venlafaxine,meds_drugs:Sertraline,meds_drugs:Paroxetine,meds_drugs:milnacipran,meds_drugs:levomilnacipran,meds_drugs:Fluvoxamine,meds_drugs:Fluoxetine,meds_drugs:Escitalopram,meds_drugs:duloxetine,meds_drugs:Desvenlafaxine,meds_drugs:Citalopram,med_generic:venlafaxine,med_generic:Sertraline,med_generic:Paroxetine,med_generic:milnacipran,med_generic:levomilnacipran,med_generic:Fluvoxamine,med_generic:Fluoxetine,med_generic:Escitalopram,med_generic:duloxetine,med_generic:Desvenlafaxine,med_generic:Citalopram,med_name_description:venlafaxine,med_name_description:Sertraline,med_name_description:Paroxetine,med_name_description:milnacipran,med_name_description:levomilnacipran,med_name_description:Fluvoxamine,med_name_description:Fluoxetine,med_name_description:Escitalopram,med_name_description:duloxetine,med_name_description:Desvenlafaxine,med_name_description:Citalopram,med_generic_name_description:venlafaxine,med_generic_name_description:Sertraline,med_generic_name_description:Paroxetine,med_generic_name_description:milnacipran,med_generic_name_description:levomilnacipran,med_generic_name_description:Fluvoxamine,med_generic_name_description:Fluoxetine,med_generic_name_description:Escitalopram,med_generic_name_description:duloxetine,med_generic_name_description:Desvenlafaxine,med_generic_name_description:Citalopram'"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 54
+    }
+   ],
+   "source": [
+    "meds_query"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 59,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "['diagnosis_code:296.20',\n",
+       " 'diagnosis_code:296.2',\n",
+       " 'diagnosis_code:296.3',\n",
+       " 'diagnosis_code:296.30',\n",
+       " 'diagnosis_code:F32.9',\n",
+       " 'diagnosis_code:F33.1',\n",
+       " 'diagnosis_code:F33.9',\n",
+       " 'diagnosis_code:F33.0',\n",
+       " 'diagnosis_code:F32.1',\n",
+       " 'diagnosis_code:F33.42',\n",
+       " 'diagnosis_code:F33.41',\n",
+       " 'diagnosis_code:F33.2',\n",
+       " 'diagnosis_code:F32.0',\n",
+       " 'diagnosis_code:F32.5',\n",
+       " 'diagnosis_code:F32.2',\n",
+       " 'diagnosis_code:F32.4',\n",
+       " 'diagnosis_code:F33.40',\n",
+       " 'diagnosis_code:F33.3',\n",
+       " 'diagnosis_code:F32.3',\n",
+       " 'diagnosis_code:F32',\n",
+       " 'diagnosis_code:F33.4',\n",
+       " 'diagnosis_code:F33',\n",
+       " 'diagnosis_code:1208903011',\n",
+       " 'diagnosis_code:31734016',\n",
+       " 'diagnosis_code:67318015',\n",
+       " 'diagnosis_code:110183011',\n",
+       " 'diagnosis_code:2967289019',\n",
+       " 'diagnosis_code:55297012',\n",
+       " 'diagnosis_code:3304524018',\n",
+       " 'diagnosis_code:77113019',\n",
+       " 'diagnosis_code:401766011',\n",
+       " 'diagnosis_code:60885016',\n",
+       " 'diagnosis_code:294826016',\n",
+       " 'diagnosis_code:61592011',\n",
+       " 'diagnosis_code:294831019',\n",
+       " 'diagnosis_code:112983018',\n",
+       " 'diagnosis_code:294825017',\n",
+       " 'diagnosis_code:43436011',\n",
+       " 'diagnosis_code:441826016',\n",
+       " 'diagnosis_code:575312011',\n",
+       " 'diagnosis_code:25793014',\n",
+       " 'diagnosis_code:764437010',\n",
+       " 'diagnosis_code:71628011',\n",
+       " 'diagnosis_code:3447110019',\n",
+       " 'diagnosis_code:809332011',\n",
+       " 'diagnosis_code:759158012',\n",
+       " 'diagnosis_code:3005871013',\n",
+       " 'diagnosis_code:3005851016',\n",
+       " 'diagnosis_code:811444017',\n",
+       " 'diagnosis_code:3320813013',\n",
+       " 'diagnosis_code:575318010',\n",
+       " 'diagnosis_code:294832014',\n",
+       " 'diagnosis_code:575315013',\n",
+       " 'diagnosis_code:3304523012',\n",
+       " 'diagnosis_code:3320811010',\n",
+       " 'diagnosis_code:3646265011',\n",
+       " 'diagnosis_code:3646267015',\n",
+       " 'diagnosis_code:743291014',\n",
+       " 'diagnosis_code:783572012',\n",
+       " 'diagnosis_code:3005831015',\n",
+       " 'diagnosis_code:105998019',\n",
+       " 'diagnosis_code:764501019',\n",
+       " 'diagnosis_code:1064901000119115',\n",
+       " 'diagnosis_code:47670016',\n",
+       " 'diagnosis_code:3646264010',\n",
+       " 'diagnosis_code:3447117016',\n",
+       " 'diagnosis_code:767531018',\n",
+       " 'diagnosis_code:768230018',\n",
+       " 'diagnosis_code:575317017',\n",
+       " 'diagnosis_code:110184017',\n",
+       " 'diagnosis_code:575314012',\n",
+       " 'diagnosis_code:575319019',\n",
+       " 'diagnosis_code:3447116013',\n",
+       " 'diagnosis_code:294824018',\n",
+       " 'diagnosis_code:3447115012',\n",
+       " 'diagnosis_code:3646260018',\n",
+       " 'diagnosis_code:575311016',\n",
+       " 'diagnosis_code:3005549010',\n",
+       " 'diagnosis_code:3005548019',\n",
+       " 'diagnosis_code:2770929013',\n",
+       " 'diagnosis_code:55208011',\n",
+       " 'diagnosis_code:115270017',\n",
+       " 'diagnosis_code:3005878019',\n",
+       " 'diagnosis_code:3646266012',\n",
+       " 'diagnosis_code:779879010',\n",
+       " 'diagnosis_code:709320011',\n",
+       " 'diagnosis_code:756295019',\n",
+       " 'diagnosis_code:294830018',\n",
+       " 'diagnosis_code:294828015',\n",
+       " 'diagnosis_code:803098012',\n",
+       " 'diagnosis_code:807808018',\n",
+       " 'diagnosis_code:2181000119116',\n",
+       " 'diagnosis_code:1195435015',\n",
+       " 'diagnosis_code:3447118014',\n",
+       " 'diagnosis_code:3646259011',\n",
+       " 'diagnosis_code:741948019',\n",
+       " 'diagnosis_code:575313018',\n",
+       " 'diagnosis_code:59216014',\n",
+       " 'diagnosis_code:661382010',\n",
+       " 'diagnosis_code:3447111015',\n",
+       " 'diagnosis_code:3320812015',\n",
+       " 'diagnosis_code:59219019',\n",
+       " 'diagnosis_code:294827013',\n",
+       " 'diagnosis_code:3647170015',\n",
+       " 'diagnosis_code:775005010',\n",
+       " 'diagnosis_code:64391018',\n",
+       " 'diagnosis_code:462884010',\n",
+       " 'diagnosis_code:110185016',\n",
+       " 'diagnosis_code:715367012',\n",
+       " 'diagnosis_code:3647431019',\n",
+       " 'diagnosis_code:776333011',\n",
+       " 'diagnosis_code:3647169016',\n",
+       " 'diagnosis_code:575323010',\n",
+       " 'diagnosis_code:118497013',\n",
+       " 'diagnosis_code:110186015',\n",
+       " 'diagnosis_code:575322017',\n",
+       " 'diagnosis_code:575330016',\n",
+       " 'diagnosis_code:811491012',\n",
+       " 'diagnosis_code:575321012',\n",
+       " 'diagnosis_code:3647432014',\n",
+       " 'diagnosis_code:67125015',\n",
+       " 'diagnosis_code:661383017',\n",
+       " 'diagnosis_code:740122015',\n",
+       " 'diagnosis_code:756582011',\n",
+       " 'diagnosis_code:5460017',\n",
+       " 'diagnosis_code:24135018',\n",
+       " 'diagnosis_code:696414010',\n",
+       " 'diagnosis_code:346972018',\n",
+       " 'diagnosis_code:410861011',\n",
+       " 'diagnosis_code:619439012',\n",
+       " 'diagnosis_code:667762016',\n",
+       " 'diagnosis_code:03082111']"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 59
+    }
+   ],
+   "source": [
+    "codes_query.split(',')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 60,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "'medication_generic_name:venlafaxine,medication_generic_name:Sertraline,medication_generic_name:Paroxetine,medication_generic_name:milnacipran,medication_generic_name:levomilnacipran,medication_generic_name:Fluvoxamine,medication_generic_name:Fluoxetine,medication_generic_name:Escitalopram,medication_generic_name:duloxetine,medication_generic_name:Desvenlafaxine,medication_generic_name:Citalopram,order_description:venlafaxine,order_description:Sertraline,order_description:Paroxetine,order_description:milnacipran,order_description:levomilnacipran,order_description:Fluvoxamine,order_description:Fluoxetine,order_description:Escitalopram,order_description:duloxetine,order_description:Desvenlafaxine,order_description:Citalopram,med_generic:venlafaxine,med_generic:Sertraline,med_generic:Paroxetine,med_generic:milnacipran,med_generic:levomilnacipran,med_generic:Fluvoxamine,med_generic:Fluoxetine,med_generic:Escitalopram,med_generic:duloxetine,med_generic:Desvenlafaxine,med_generic:Citalopram,order_drugs:venlafaxine,order_drugs:Sertraline,order_drugs:Paroxetine,order_drugs:milnacipran,order_drugs:levomilnacipran,order_drugs:Fluvoxamine,order_drugs:Fluoxetine,order_drugs:Escitalopram,order_drugs:duloxetine,order_drugs:Desvenlafaxine,order_drugs:Citalopram,meds_drugs:venlafaxine,meds_drugs:Sertraline,meds_drugs:Paroxetine,meds_drugs:milnacipran,meds_drugs:levomilnacipran,meds_drugs:Fluvoxamine,meds_drugs:Fluoxetine,meds_drugs:Escitalopram,meds_drugs:duloxetine,meds_drugs:Desvenlafaxine,meds_drugs:Citalopram,med_generic:venlafaxine,med_generic:Sertraline,med_generic:Paroxetine,med_generic:milnacipran,med_generic:levomilnacipran,med_generic:Fluvoxamine,med_generic:Fluoxetine,med_generic:Escitalopram,med_generic:duloxetine,med_generic:Desvenlafaxine,med_generic:Citalopram,med_name_description:venlafaxine,med_name_description:Sertraline,med_name_description:Paroxetine,med_name_description:milnacipran,med_name_description:levomilnacipran,med_name_description:Fluvoxamine,med_name_description:Fluoxetine,med_name_description:Escitalopram,med_name_description:duloxetine,med_name_description:Desvenlafaxine,med_name_description:Citalopram,med_generic_name_description:venlafaxine,med_generic_name_description:Sertraline,med_generic_name_description:Paroxetine,med_generic_name_description:milnacipran,med_generic_name_description:levomilnacipran,med_generic_name_description:Fluvoxamine,med_generic_name_description:Fluoxetine,med_generic_name_description:Escitalopram,med_generic_name_description:duloxetine,med_generic_name_description:Desvenlafaxine,med_generic_name_description:Citalopram;diagnosis_code:296.20,diagnosis_code:296.2,diagnosis_code:296.3,diagnosis_code:296.30,diagnosis_code:F32.9,diagnosis_code:F33.1,diagnosis_code:F33.9,diagnosis_code:F33.0,diagnosis_code:F32.1,diagnosis_code:F33.42,diagnosis_code:F33.41,diagnosis_code:F33.2,diagnosis_code:F32.0,diagnosis_code:F32.5,diagnosis_code:F32.2,diagnosis_code:F32.4,diagnosis_code:F33.40,diagnosis_code:F33.3,diagnosis_code:F32.3,diagnosis_code:F32,diagnosis_code:F33.4,diagnosis_code:F33,diagnosis_code:1208903011,diagnosis_code:31734016,diagnosis_code:67318015,diagnosis_code:110183011,diagnosis_code:2967289019,diagnosis_code:55297012,diagnosis_code:3304524018,diagnosis_code:77113019,diagnosis_code:401766011,diagnosis_code:60885016,diagnosis_code:294826016,diagnosis_code:61592011,diagnosis_code:294831019,diagnosis_code:112983018,diagnosis_code:294825017,diagnosis_code:43436011,diagnosis_code:441826016,diagnosis_code:575312011,diagnosis_code:25793014,diagnosis_code:764437010,diagnosis_code:71628011,diagnosis_code:3447110019,diagnosis_code:809332011,diagnosis_code:759158012,diagnosis_code:3005871013,diagnosis_code:3005851016,diagnosis_code:811444017,diagnosis_code:3320813013,diagnosis_code:575318010,diagnosis_code:294832014,diagnosis_code:575315013,diagnosis_code:3304523012,diagnosis_code:3320811010,diagnosis_code:3646265011,diagnosis_code:3646267015,diagnosis_code:743291014,diagnosis_code:783572012,diagnosis_code:3005831015,diagnosis_code:105998019,diagnosis_code:764501019,diagnosis_code:1064901000119115,diagnosis_code:47670016,diagnosis_code:3646264010,diagnosis_code:3447117016,diagnosis_code:767531018,diagnosis_code:768230018,diagnosis_code:575317017,diagnosis_code:110184017,diagnosis_code:575314012,diagnosis_code:575319019,diagnosis_code:3447116013,diagnosis_code:294824018,diagnosis_code:3447115012,diagnosis_code:3646260018,diagnosis_code:575311016,diagnosis_code:3005549010,diagnosis_code:3005548019,diagnosis_code:2770929013,diagnosis_code:55208011,diagnosis_code:115270017,diagnosis_code:3005878019,diagnosis_code:3646266012,diagnosis_code:779879010,diagnosis_code:709320011,diagnosis_code:756295019,diagnosis_code:294830018,diagnosis_code:294828015,diagnosis_code:803098012,diagnosis_code:807808018,diagnosis_code:2181000119116,diagnosis_code:1195435015,diagnosis_code:3447118014,diagnosis_code:3646259011,diagnosis_code:741948019,diagnosis_code:575313018,diagnosis_code:59216014,diagnosis_code:661382010,diagnosis_code:3447111015,diagnosis_code:3320812015,diagnosis_code:59219019,diagnosis_code:294827013,diagnosis_code:3647170015,diagnosis_code:775005010,diagnosis_code:64391018,diagnosis_code:462884010,diagnosis_code:110185016,diagnosis_code:715367012,diagnosis_code:3647431019,diagnosis_code:776333011,diagnosis_code:3647169016,diagnosis_code:575323010,diagnosis_code:118497013,diagnosis_code:110186015,diagnosis_code:575322017,diagnosis_code:575330016,diagnosis_code:811491012,diagnosis_code:575321012,diagnosis_code:3647432014,diagnosis_code:67125015,diagnosis_code:661383017,diagnosis_code:740122015,diagnosis_code:756582011,diagnosis_code:5460017,diagnosis_code:24135018,diagnosis_code:696414010,diagnosis_code:346972018,diagnosis_code:410861011,diagnosis_code:619439012,diagnosis_code:667762016,diagnosis_code:03082111'"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 60
+    }
+   ],
+   "source": [
+    "query"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 61,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "['medication_generic_name:venlafaxine',\n",
+       " 'medication_generic_name:Sertraline',\n",
+       " 'medication_generic_name:Paroxetine',\n",
+       " 'medication_generic_name:milnacipran',\n",
+       " 'medication_generic_name:levomilnacipran',\n",
+       " 'medication_generic_name:Fluvoxamine',\n",
+       " 'medication_generic_name:Fluoxetine',\n",
+       " 'medication_generic_name:Escitalopram',\n",
+       " 'medication_generic_name:duloxetine',\n",
+       " 'medication_generic_name:Desvenlafaxine',\n",
+       " 'medication_generic_name:Citalopram',\n",
+       " 'order_description:venlafaxine',\n",
+       " 'order_description:Sertraline',\n",
+       " 'order_description:Paroxetine',\n",
+       " 'order_description:milnacipran',\n",
+       " 'order_description:levomilnacipran',\n",
+       " 'order_description:Fluvoxamine',\n",
+       " 'order_description:Fluoxetine',\n",
+       " 'order_description:Escitalopram',\n",
+       " 'order_description:duloxetine',\n",
+       " 'order_description:Desvenlafaxine',\n",
+       " 'order_description:Citalopram',\n",
+       " 'med_generic:venlafaxine',\n",
+       " 'med_generic:Sertraline',\n",
+       " 'med_generic:Paroxetine',\n",
+       " 'med_generic:milnacipran',\n",
+       " 'med_generic:levomilnacipran',\n",
+       " 'med_generic:Fluvoxamine',\n",
+       " 'med_generic:Fluoxetine',\n",
+       " 'med_generic:Escitalopram',\n",
+       " 'med_generic:duloxetine',\n",
+       " 'med_generic:Desvenlafaxine',\n",
+       " 'med_generic:Citalopram',\n",
+       " 'order_drugs:venlafaxine',\n",
+       " 'order_drugs:Sertraline',\n",
+       " 'order_drugs:Paroxetine',\n",
+       " 'order_drugs:milnacipran',\n",
+       " 'order_drugs:levomilnacipran',\n",
+       " 'order_drugs:Fluvoxamine',\n",
+       " 'order_drugs:Fluoxetine',\n",
+       " 'order_drugs:Escitalopram',\n",
+       " 'order_drugs:duloxetine',\n",
+       " 'order_drugs:Desvenlafaxine',\n",
+       " 'order_drugs:Citalopram',\n",
+       " 'meds_drugs:venlafaxine',\n",
+       " 'meds_drugs:Sertraline',\n",
+       " 'meds_drugs:Paroxetine',\n",
+       " 'meds_drugs:milnacipran',\n",
+       " 'meds_drugs:levomilnacipran',\n",
+       " 'meds_drugs:Fluvoxamine',\n",
+       " 'meds_drugs:Fluoxetine',\n",
+       " 'meds_drugs:Escitalopram',\n",
+       " 'meds_drugs:duloxetine',\n",
+       " 'meds_drugs:Desvenlafaxine',\n",
+       " 'meds_drugs:Citalopram',\n",
+       " 'med_generic:venlafaxine',\n",
+       " 'med_generic:Sertraline',\n",
+       " 'med_generic:Paroxetine',\n",
+       " 'med_generic:milnacipran',\n",
+       " 'med_generic:levomilnacipran',\n",
+       " 'med_generic:Fluvoxamine',\n",
+       " 'med_generic:Fluoxetine',\n",
+       " 'med_generic:Escitalopram',\n",
+       " 'med_generic:duloxetine',\n",
+       " 'med_generic:Desvenlafaxine',\n",
+       " 'med_generic:Citalopram',\n",
+       " 'med_name_description:venlafaxine',\n",
+       " 'med_name_description:Sertraline',\n",
+       " 'med_name_description:Paroxetine',\n",
+       " 'med_name_description:milnacipran',\n",
+       " 'med_name_description:levomilnacipran',\n",
+       " 'med_name_description:Fluvoxamine',\n",
+       " 'med_name_description:Fluoxetine',\n",
+       " 'med_name_description:Escitalopram',\n",
+       " 'med_name_description:duloxetine',\n",
+       " 'med_name_description:Desvenlafaxine',\n",
+       " 'med_name_description:Citalopram',\n",
+       " 'med_generic_name_description:venlafaxine',\n",
+       " 'med_generic_name_description:Sertraline',\n",
+       " 'med_generic_name_description:Paroxetine',\n",
+       " 'med_generic_name_description:milnacipran',\n",
+       " 'med_generic_name_description:levomilnacipran',\n",
+       " 'med_generic_name_description:Fluvoxamine',\n",
+       " 'med_generic_name_description:Fluoxetine',\n",
+       " 'med_generic_name_description:Escitalopram',\n",
+       " 'med_generic_name_description:duloxetine',\n",
+       " 'med_generic_name_description:Desvenlafaxine',\n",
+       " 'med_generic_name_description:Citalopram;diagnosis_code:296.20',\n",
+       " 'diagnosis_code:296.2',\n",
+       " 'diagnosis_code:296.3',\n",
+       " 'diagnosis_code:296.30',\n",
+       " 'diagnosis_code:F32.9',\n",
+       " 'diagnosis_code:F33.1',\n",
+       " 'diagnosis_code:F33.9',\n",
+       " 'diagnosis_code:F33.0',\n",
+       " 'diagnosis_code:F32.1',\n",
+       " 'diagnosis_code:F33.42',\n",
+       " 'diagnosis_code:F33.41',\n",
+       " 'diagnosis_code:F33.2',\n",
+       " 'diagnosis_code:F32.0',\n",
+       " 'diagnosis_code:F32.5',\n",
+       " 'diagnosis_code:F32.2',\n",
+       " 'diagnosis_code:F32.4',\n",
+       " 'diagnosis_code:F33.40',\n",
+       " 'diagnosis_code:F33.3',\n",
+       " 'diagnosis_code:F32.3',\n",
+       " 'diagnosis_code:F32',\n",
+       " 'diagnosis_code:F33.4',\n",
+       " 'diagnosis_code:F33',\n",
+       " 'diagnosis_code:1208903011',\n",
+       " 'diagnosis_code:31734016',\n",
+       " 'diagnosis_code:67318015',\n",
+       " 'diagnosis_code:110183011',\n",
+       " 'diagnosis_code:2967289019',\n",
+       " 'diagnosis_code:55297012',\n",
+       " 'diagnosis_code:3304524018',\n",
+       " 'diagnosis_code:77113019',\n",
+       " 'diagnosis_code:401766011',\n",
+       " 'diagnosis_code:60885016',\n",
+       " 'diagnosis_code:294826016',\n",
+       " 'diagnosis_code:61592011',\n",
+       " 'diagnosis_code:294831019',\n",
+       " 'diagnosis_code:112983018',\n",
+       " 'diagnosis_code:294825017',\n",
+       " 'diagnosis_code:43436011',\n",
+       " 'diagnosis_code:441826016',\n",
+       " 'diagnosis_code:575312011',\n",
+       " 'diagnosis_code:25793014',\n",
+       " 'diagnosis_code:764437010',\n",
+       " 'diagnosis_code:71628011',\n",
+       " 'diagnosis_code:3447110019',\n",
+       " 'diagnosis_code:809332011',\n",
+       " 'diagnosis_code:759158012',\n",
+       " 'diagnosis_code:3005871013',\n",
+       " 'diagnosis_code:3005851016',\n",
+       " 'diagnosis_code:811444017',\n",
+       " 'diagnosis_code:3320813013',\n",
+       " 'diagnosis_code:575318010',\n",
+       " 'diagnosis_code:294832014',\n",
+       " 'diagnosis_code:575315013',\n",
+       " 'diagnosis_code:3304523012',\n",
+       " 'diagnosis_code:3320811010',\n",
+       " 'diagnosis_code:3646265011',\n",
+       " 'diagnosis_code:3646267015',\n",
+       " 'diagnosis_code:743291014',\n",
+       " 'diagnosis_code:783572012',\n",
+       " 'diagnosis_code:3005831015',\n",
+       " 'diagnosis_code:105998019',\n",
+       " 'diagnosis_code:764501019',\n",
+       " 'diagnosis_code:1064901000119115',\n",
+       " 'diagnosis_code:47670016',\n",
+       " 'diagnosis_code:3646264010',\n",
+       " 'diagnosis_code:3447117016',\n",
+       " 'diagnosis_code:767531018',\n",
+       " 'diagnosis_code:768230018',\n",
+       " 'diagnosis_code:575317017',\n",
+       " 'diagnosis_code:110184017',\n",
+       " 'diagnosis_code:575314012',\n",
+       " 'diagnosis_code:575319019',\n",
+       " 'diagnosis_code:3447116013',\n",
+       " 'diagnosis_code:294824018',\n",
+       " 'diagnosis_code:3447115012',\n",
+       " 'diagnosis_code:3646260018',\n",
+       " 'diagnosis_code:575311016',\n",
+       " 'diagnosis_code:3005549010',\n",
+       " 'diagnosis_code:3005548019',\n",
+       " 'diagnosis_code:2770929013',\n",
+       " 'diagnosis_code:55208011',\n",
+       " 'diagnosis_code:115270017',\n",
+       " 'diagnosis_code:3005878019',\n",
+       " 'diagnosis_code:3646266012',\n",
+       " 'diagnosis_code:779879010',\n",
+       " 'diagnosis_code:709320011',\n",
+       " 'diagnosis_code:756295019',\n",
+       " 'diagnosis_code:294830018',\n",
+       " 'diagnosis_code:294828015',\n",
+       " 'diagnosis_code:803098012',\n",
+       " 'diagnosis_code:807808018',\n",
+       " 'diagnosis_code:2181000119116',\n",
+       " 'diagnosis_code:1195435015',\n",
+       " 'diagnosis_code:3447118014',\n",
+       " 'diagnosis_code:3646259011',\n",
+       " 'diagnosis_code:741948019',\n",
+       " 'diagnosis_code:575313018',\n",
+       " 'diagnosis_code:59216014',\n",
+       " 'diagnosis_code:661382010',\n",
+       " 'diagnosis_code:3447111015',\n",
+       " 'diagnosis_code:3320812015',\n",
+       " 'diagnosis_code:59219019',\n",
+       " 'diagnosis_code:294827013',\n",
+       " 'diagnosis_code:3647170015',\n",
+       " 'diagnosis_code:775005010',\n",
+       " 'diagnosis_code:64391018',\n",
+       " 'diagnosis_code:462884010',\n",
+       " 'diagnosis_code:110185016',\n",
+       " 'diagnosis_code:715367012',\n",
+       " 'diagnosis_code:3647431019',\n",
+       " 'diagnosis_code:776333011',\n",
+       " 'diagnosis_code:3647169016',\n",
+       " 'diagnosis_code:575323010',\n",
+       " 'diagnosis_code:118497013',\n",
+       " 'diagnosis_code:110186015',\n",
+       " 'diagnosis_code:575322017',\n",
+       " 'diagnosis_code:575330016',\n",
+       " 'diagnosis_code:811491012',\n",
+       " 'diagnosis_code:575321012',\n",
+       " 'diagnosis_code:3647432014',\n",
+       " 'diagnosis_code:67125015',\n",
+       " 'diagnosis_code:661383017',\n",
+       " 'diagnosis_code:740122015',\n",
+       " 'diagnosis_code:756582011',\n",
+       " 'diagnosis_code:5460017',\n",
+       " 'diagnosis_code:24135018',\n",
+       " 'diagnosis_code:696414010',\n",
+       " 'diagnosis_code:346972018',\n",
+       " 'diagnosis_code:410861011',\n",
+       " 'diagnosis_code:619439012',\n",
+       " 'diagnosis_code:667762016',\n",
+       " 'diagnosis_code:03082111']"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 61
+    }
+   ],
+   "source": [
+    "query.split(',')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 62,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "5844"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 62
+    }
+   ],
+   "source": [
+    "len(query)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 63,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "219"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 63
+    }
+   ],
+   "source": [
+    "len(query.split(','))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cohort1 = rec.makeCohort(cohortName='mdd_full', cohortSpecifier=query, timeWindow='full')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Specify the columns you want using the cohortProjector param\n",
+    "cohort1.initDump(cohortProjector=['patient_id', 'timestamp', 'diagnosis_code', 'meds_drugs'])\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "18805740"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 31
+    }
+   ],
+   "source": [
+    "cohort1.getTotalRecords()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 64,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "                        ID  \\\n",
+       "1     -3093003661128632590   \n",
+       "2     -8876253925767843847   \n",
+       "3      -911679970675209084   \n",
+       "4     -8130756253474606812   \n",
+       "5      4643284292390473774   \n",
+       "...                    ...   \n",
+       "8322  -7600409902629918149   \n",
+       "8323    635397033416152486   \n",
+       "8324  -8493422831029760870   \n",
+       "8325  -7999264590149892913   \n",
+       "8326  -1108584276587574148   \n",
+       "\n",
+       "                                                   Column Name    Type  \\\n",
+       "1                            Hemoglobin [Mass/volume] in Blood  double   \n",
+       "2                               Glucose [Mass/volume] in Blood  double   \n",
+       "3                  Creatinine [Mass/volume] in Serum or Plasma  double   \n",
+       "4     Hematocrit [Volume Fraction] of Blood by Automated count  double   \n",
+       "5             Platelets [#/volume] in Blood by Automated count  double   \n",
+       "...                                                        ...     ...   \n",
+       "8322                                                        C2  double   \n",
+       "8323                                                        C4  double   \n",
+       "8324                                                        C3  double   \n",
+       "8325                                                        C6  double   \n",
+       "8326                                                        C8  double   \n",
+       "\n",
+       "     Data Category                                               Column Info  \\\n",
+       "1          labtest                         Hemoglobin [Mass/volume] in Blood   \n",
+       "2          labtest                            Glucose [Mass/volume] in Blood   \n",
+       "3          labtest               Creatinine [Mass/volume] in Serum or Plasma   \n",
+       "4          labtest  Hematocrit [Volume Fraction] of Blood by Automated count   \n",
+       "5          labtest          Platelets [#/volume] in Blood by Automated count   \n",
+       "...            ...                                                       ...   \n",
+       "8322       labtest                                                        C2   \n",
+       "8323       labtest                                                        C4   \n",
+       "8324       labtest                                                        C3   \n",
+       "8325       labtest                                                        C6   \n",
+       "8326       labtest                                                        C8   \n",
+       "\n",
+       "     LOINC Code            LOINC code URL Relation  \\\n",
+       "1         718-7   https://loinc.org/718-7  synonym   \n",
+       "2        2339-0  https://loinc.org/2339-0  synonym   \n",
+       "3        2160-0  https://loinc.org/2160-0  synonym   \n",
+       "4        4544-3  https://loinc.org/4544-3  synonym   \n",
+       "5         777-3   https://loinc.org/777-3  synonym   \n",
+       "...         ...                       ...      ...   \n",
+       "8322          0                         0     hash   \n",
+       "8323          0                         0     hash   \n",
+       "8324          0                         0     hash   \n",
+       "8325          0                         0     hash   \n",
+       "8326          0                         0     hash   \n",
+       "\n",
+       "                                                           matched  \\\n",
+       "1                          Hemoglobin  [ Mass / volume ]  in Blood   \n",
+       "2                             Glucose  [ Mass / volume ]  in Blood   \n",
+       "3                Creatinine  [ Mass / volume ]  in Serum or Plasma   \n",
+       "4     Hematocrit  [ Volume Fraction ]  of Blood by Automated count   \n",
+       "5         Platelets  [  #  / volume ]  in Blood by Automated count   \n",
+       "...                                                            ...   \n",
+       "8322                                          -7600409902629918149   \n",
+       "8323                                            635397033416152486   \n",
+       "8324                                          -8493422831029760870   \n",
+       "8325                                          -7999264590149892913   \n",
+       "8326                                          -1108584276587574148   \n",
+       "\n",
+       "      complete_word_match  dynamic_score  Lower Tail Min  Lower Tail Max  \\\n",
+       "1                    True   8.816925e-01             0.0           11.60   \n",
+       "2                    True   8.777514e-01             0.0           70.00   \n",
+       "3                    True   8.741942e-01             0.0            0.59   \n",
+       "4                    True   8.669254e-01             0.0           35.50   \n",
+       "5                    True   8.642201e-01             0.0          150.00   \n",
+       "...                   ...            ...             ...             ...   \n",
+       "8322                False   1.242489e-07             0.0            0.00   \n",
+       "8323                False   1.242489e-07             0.0            0.00   \n",
+       "8324                False   1.242489e-07             0.0            0.00   \n",
+       "8325                False   1.242489e-07             0.0            0.00   \n",
+       "8326                False   1.242489e-07             0.0            0.00   \n",
+       "\n",
+       "      Normal Range Max  Normal Range Min Normal Range Str  Upper Tail Max  \\\n",
+       "1                15.00             11.60      11.6 - 15.0           15.00   \n",
+       "2               100.00             70.00           70-100          100.00   \n",
+       "3                 1.04              0.59      0.59 - 1.04            1.04   \n",
+       "4                44.90             35.50      35.5 - 44.9           44.90   \n",
+       "5               450.00            150.00        150 - 450          450.00   \n",
+       "...                ...               ...              ...             ...   \n",
+       "8322              0.00              0.00                             0.00   \n",
+       "8323              0.00              0.00                             0.00   \n",
+       "8324              0.00              0.00                             0.00   \n",
+       "8325              0.00              0.00                             0.00   \n",
+       "8326              0.00              0.00                             0.00   \n",
+       "\n",
+       "      Upper Tail Min  \n",
+       "1              15.00  \n",
+       "2             100.00  \n",
+       "3               1.04  \n",
+       "4              44.90  \n",
+       "5             450.00  \n",
+       "...              ...  \n",
+       "8322            0.00  \n",
+       "8323            0.00  \n",
+       "8324            0.00  \n",
+       "8325            0.00  \n",
+       "8326            0.00  \n",
+       "\n",
+       "[8326 rows x 18 columns]"
+      ],
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>ID</th>\n      <th>Column Name</th>\n      <th>Type</th>\n      <th>Data Category</th>\n      <th>Column Info</th>\n      <th>LOINC Code</th>\n      <th>LOINC code URL</th>\n      <th>Relation</th>\n      <th>matched</th>\n      <th>complete_word_match</th>\n      <th>dynamic_score</th>\n      <th>Lower Tail Min</th>\n      <th>Lower Tail Max</th>\n      <th>Normal Range Max</th>\n      <th>Normal Range Min</th>\n      <th>Normal Range Str</th>\n      <th>Upper Tail Max</th>\n      <th>Upper Tail Min</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>1</th>\n      <td>-3093003661128632590</td>\n      <td>Hemoglobin [Mass/volume] in Blood</td>\n      <td>double</td>\n      <td>labtest</td>\n      <td>Hemoglobin [Mass/volume] in Blood</td>\n      <td>718-7</td>\n      <td>https://loinc.org/718-7</td>\n      <td>synonym</td>\n      <td>Hemoglobin  [ Mass / volume ]  in Blood</td>\n      <td>True</td>\n      <td>8.816925e-01</td>\n      <td>0.0</td>\n      <td>11.60</td>\n      <td>15.00</td>\n      <td>11.60</td>\n      <td>11.6 - 15.0</td>\n      <td>15.00</td>\n      <td>15.00</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>-8876253925767843847</td>\n      <td>Glucose [Mass/volume] in Blood</td>\n      <td>double</td>\n      <td>labtest</td>\n      <td>Glucose [Mass/volume] in Blood</td>\n      <td>2339-0</td>\n      <td>https://loinc.org/2339-0</td>\n      <td>synonym</td>\n      <td>Glucose  [ Mass / volume ]  in Blood</td>\n      <td>True</td>\n      <td>8.777514e-01</td>\n      <td>0.0</td>\n      <td>70.00</td>\n      <td>100.00</td>\n      <td>70.00</td>\n      <td>70-100</td>\n      <td>100.00</td>\n      <td>100.00</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>-911679970675209084</td>\n      <td>Creatinine [Mass/volume] in Serum or Plasma</td>\n      <td>double</td>\n      <td>labtest</td>\n      <td>Creatinine [Mass/volume] in Serum or Plasma</td>\n      <td>2160-0</td>\n      <td>https://loinc.org/2160-0</td>\n      <td>synonym</td>\n      <td>Creatinine  [ Mass / volume ]  in Serum or Plasma</td>\n      <td>True</td>\n      <td>8.741942e-01</td>\n      <td>0.0</td>\n      <td>0.59</td>\n      <td>1.04</td>\n      <td>0.59</td>\n      <td>0.59 - 1.04</td>\n      <td>1.04</td>\n      <td>1.04</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>-8130756253474606812</td>\n      <td>Hematocrit [Volume Fraction] of Blood by Automated count</td>\n      <td>double</td>\n      <td>labtest</td>\n      <td>Hematocrit [Volume Fraction] of Blood by Automated count</td>\n      <td>4544-3</td>\n      <td>https://loinc.org/4544-3</td>\n      <td>synonym</td>\n      <td>Hematocrit  [ Volume Fraction ]  of Blood by Automated count</td>\n      <td>True</td>\n      <td>8.669254e-01</td>\n      <td>0.0</td>\n      <td>35.50</td>\n      <td>44.90</td>\n      <td>35.50</td>\n      <td>35.5 - 44.9</td>\n      <td>44.90</td>\n      <td>44.90</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>4643284292390473774</td>\n      <td>Platelets [#/volume] in Blood by Automated count</td>\n      <td>double</td>\n      <td>labtest</td>\n      <td>Platelets [#/volume] in Blood by Automated count</td>\n      <td>777-3</td>\n      <td>https://loinc.org/777-3</td>\n      <td>synonym</td>\n      <td>Platelets  [  #  / volume ]  in Blood by Automated count</td>\n      <td>True</td>\n      <td>8.642201e-01</td>\n      <td>0.0</td>\n      <td>150.00</td>\n      <td>450.00</td>\n      <td>150.00</td>\n      <td>150 - 450</td>\n      <td>450.00</td>\n      <td>450.00</td>\n    </tr>\n    <tr>\n      <th>...</th>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n    </tr>\n    <tr>\n      <th>8322</th>\n      <td>-7600409902629918149</td>\n      <td>C2</td>\n      <td>double</td>\n      <td>labtest</td>\n      <td>C2</td>\n      <td>0</td>\n      <td>0</td>\n      <td>hash</td>\n      <td>-7600409902629918149</td>\n      <td>False</td>\n      <td>1.242489e-07</td>\n      <td>0.0</td>\n      <td>0.00</td>\n      <td>0.00</td>\n      <td>0.00</td>\n      <td></td>\n      <td>0.00</td>\n      <td>0.00</td>\n    </tr>\n    <tr>\n      <th>8323</th>\n      <td>635397033416152486</td>\n      <td>C4</td>\n      <td>double</td>\n      <td>labtest</td>\n      <td>C4</td>\n      <td>0</td>\n      <td>0</td>\n      <td>hash</td>\n      <td>635397033416152486</td>\n      <td>False</td>\n      <td>1.242489e-07</td>\n      <td>0.0</td>\n      <td>0.00</td>\n      <td>0.00</td>\n      <td>0.00</td>\n      <td></td>\n      <td>0.00</td>\n      <td>0.00</td>\n    </tr>\n    <tr>\n      <th>8324</th>\n      <td>-8493422831029760870</td>\n      <td>C3</td>\n      <td>double</td>\n      <td>labtest</td>\n      <td>C3</td>\n      <td>0</td>\n      <td>0</td>\n      <td>hash</td>\n      <td>-8493422831029760870</td>\n      <td>False</td>\n      <td>1.242489e-07</td>\n      <td>0.0</td>\n      <td>0.00</td>\n      <td>0.00</td>\n      <td>0.00</td>\n      <td></td>\n      <td>0.00</td>\n      <td>0.00</td>\n    </tr>\n    <tr>\n      <th>8325</th>\n      <td>-7999264590149892913</td>\n      <td>C6</td>\n      <td>double</td>\n      <td>labtest</td>\n      <td>C6</td>\n      <td>0</td>\n      <td>0</td>\n      <td>hash</td>\n      <td>-7999264590149892913</td>\n      <td>False</td>\n      <td>1.242489e-07</td>\n      <td>0.0</td>\n      <td>0.00</td>\n      <td>0.00</td>\n      <td>0.00</td>\n      <td></td>\n      <td>0.00</td>\n      <td>0.00</td>\n    </tr>\n    <tr>\n      <th>8326</th>\n      <td>-1108584276587574148</td>\n      <td>C8</td>\n      <td>double</td>\n      <td>labtest</td>\n      <td>C8</td>\n      <td>0</td>\n      <td>0</td>\n      <td>hash</td>\n      <td>-1108584276587574148</td>\n      <td>False</td>\n      <td>1.242489e-07</td>\n      <td>0.0</td>\n      <td>0.00</td>\n      <td>0.00</td>\n      <td>0.00</td>\n      <td></td>\n      <td>0.00</td>\n      <td>0.00</td>\n    </tr>\n  </tbody>\n</table>\n<p>8326 rows × 18 columns</p>\n</div>"
+     },
+     "metadata": {},
+     "execution_count": 64
+    }
+   ],
+   "source": [
+    "cohort1.columnInfo"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "display_data",
+     "data": {
+      "text/plain": "       timestamp patient_id diagnosis_code        meds_drugs\n1       74863940      10001            i10         lidocaine\n2       74863940      10001                 lactated_ringers\n3       75039634      10001          401.9               NaN\n4       75236368      10001          i73.9               NaN\n5       75236368      10001          272.4                  \n...          ...        ...            ...               ...\n58892   46581720     101596            o76                  \n58893   46581720     101596          z37.0                  \n58894   46581720     101596         o47.03                  \n58895   46581720     101596         z3a.34                  \n58896   46581720     101596       o69.1xx0                  \n\n[58896 rows x 4 columns]",
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>timestamp</th>\n      <th>patient_id</th>\n      <th>diagnosis_code</th>\n      <th>meds_drugs</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>1</th>\n      <td>74863940</td>\n      <td>10001</td>\n      <td>i10</td>\n      <td>lidocaine</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>74863940</td>\n      <td>10001</td>\n      <td></td>\n      <td>lactated_ringers</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>75039634</td>\n      <td>10001</td>\n      <td>401.9</td>\n      <td>NaN</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>75236368</td>\n      <td>10001</td>\n      <td>i73.9</td>\n      <td>NaN</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>75236368</td>\n      <td>10001</td>\n      <td>272.4</td>\n      <td></td>\n    </tr>\n    <tr>\n      <th>...</th>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n    </tr>\n    <tr>\n      <th>58892</th>\n      <td>46581720</td>\n      <td>101596</td>\n      <td>o76</td>\n      <td></td>\n    </tr>\n    <tr>\n      <th>58893</th>\n      <td>46581720</td>\n      <td>101596</td>\n      <td>z37.0</td>\n      <td></td>\n    </tr>\n    <tr>\n      <th>58894</th>\n      <td>46581720</td>\n      <td>101596</td>\n      <td>o47.03</td>\n      <td></td>\n    </tr>\n    <tr>\n      <th>58895</th>\n      <td>46581720</td>\n      <td>101596</td>\n      <td>z3a.34</td>\n      <td></td>\n    </tr>\n    <tr>\n      <th>58896</th>\n      <td>46581720</td>\n      <td>101596</td>\n      <td>o69.1xx0</td>\n      <td></td>\n    </tr>\n  </tbody>\n</table>\n<p>58896 rows × 4 columns</p>\n</div>"
+     },
+     "metadata": {}
+    }
+   ],
+   "source": [
+    "if cohort1.advanceDF():\n",
+    "    df = cohort1.getDF()\n",
+    "    display(df)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "datetime.datetime"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 41
+    }
+   ],
+   "source": [
+    "from datetime import datetime\n",
+    "x = datetime(2021, 2, 13, 13, 0)\n",
+    "type(x)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "datetime.datetime(2021, 2, 13, 13, 0)"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 42
+    }
+   ],
+   "source": [
+    "x"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# get a list of ICD codes for testing purposes\n",
+    "cml_codes = rec.getDiagnosticCodesFromDisease('CML')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "metadata": {},
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "['205.11',\n",
+       " '205.10',\n",
+       " '205.1',\n",
+       " '205.12',\n",
+       " 'C92.11',\n",
+       " 'C92.10',\n",
+       " 'C92.12',\n",
+       " 'C92.1',\n",
+       " '153447011',\n",
+       " '153446019',\n",
+       " '1218767010',\n",
+       " '105330015',\n",
+       " '207403012',\n",
+       " '105329013',\n",
+       " '105331016',\n",
+       " '1217278018',\n",
+       " '2897550015',\n",
+       " '2534658013',\n",
+       " '1217279014',\n",
+       " '836420010',\n",
+       " '289900013',\n",
+       " '1772080015',\n",
+       " '2534648014',\n",
+       " '2899857015',\n",
+       " '836421014',\n",
+       " '2899858013',\n",
+       " '2534652014',\n",
+       " '2534650018',\n",
+       " '2898684014',\n",
+       " '201656010',\n",
+       " '2901809010',\n",
+       " '2837901015',\n",
+       " '153448018',\n",
+       " '2772431018',\n",
+       " '2837902010',\n",
+       " '572065019',\n",
+       " '1218766018',\n",
+       " '2770413014',\n",
+       " '2531162016',\n",
+       " '2534657015',\n",
+       " '1773807012',\n",
+       " '289899015',\n",
+       " '1775093018',\n",
+       " '2534649018',\n",
+       " '2531158010',\n",
+       " '2534655011',\n",
+       " '2537477010',\n",
+       " '2534651019',\n",
+       " '2534653016',\n",
+       " '2537478017',\n",
+       " '2531160012',\n",
+       " '2531159019',\n",
+       " '2531161011',\n",
+       " '2534654010',\n",
+       " '2534656012',\n",
+       " '02051110',\n",
+       " '02899370']"
+      ]
+     },
+     "metadata": {},
+     "execution_count": 44
+    }
+   ],
+   "source": [
+    "cml_codes"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "\n",
+    "def get_filtered_patients(icd_code_list: list, start_timestamp: datetime, end_timestamp: datetime, occurrence_count: int, medication_query: str) -> list:\n"
+   ]
+  }
+ ]
+}

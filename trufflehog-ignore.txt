@@ -1,0 +1,5 @@
+
+# Put file name paths you want to explicitly ignore from being scanned for accidental API token keys here.
+# (Probably want to leave this file blank unless good reason to modify)
+
+notebooks/*
