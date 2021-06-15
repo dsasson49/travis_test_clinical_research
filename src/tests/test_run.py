@@ -55,3 +55,12 @@ def project_context():
 class TestProjectContext:
     def test_package_name(self, project_context):
         assert project_context.package_name == "clincial_research_workflow"
+
+
+
+def divide_zero(n):
+    return(n/0)
+
+x = 20
+
+y2 = divide_zero(x)
